@@ -29,7 +29,7 @@ flowchart LR
     end
 
     subgraph Training["🤖 Model Training"]
-        O[Conv1D / ResNet<br/>Input: (N, 186, 1)]
+        O["Conv1D / ResNet<br/>Input: (N, 186, 1)"]  <!-- ✅ Quoted label -->
         P[Metrics: F1, ROC-AUC,<br/>Confusion Matrix]
         Q[Model Registry<br/>Best weights .h5]
     end
