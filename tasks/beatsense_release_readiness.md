@@ -1,4 +1,4 @@
-# BeatSense — Release Readiness
+# BeatSense — Final AI Release Decision
 
 ## 1. Readiness table
 
