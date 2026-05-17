@@ -2,7 +2,7 @@
 
 ## 1. Sources & Rights
 - Source systems:
-  - Основной источник: ECG Heartbeat Categorization Dataset (Kaggle)
+  - Основной источник: ECG Heartbeat Categorization Dataset (Kaggle) https://www.kaggle.com/datasets/shayanfazeli/heartbeat/data
   - Данные представлены в виде табличных записей ECG сигналов (heartbeat segments)
 
 - Retention:
@@ -90,6 +90,7 @@
     - `ecg-heartbeat-v3-processed`
 
 - Storage location:
+
   - Raw данные:
     - `/data/raw/`
   - Обработанные данные:

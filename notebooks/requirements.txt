@@ -1,0 +1,26 @@
+# Зависимости для notebooks/ecg_classification.ipynb
+# Установка:
+#   .\.venv\Scripts\python.exe -m pip install -r notebooks/requirements.txt
+# Для torch CPU-only (меньше по размеру) дополнительно укажите:
+#   --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+
+# --- core scientific stack ---
+numpy>=1.26
+pandas>=2.1
+scikit-learn>=1.4
+imbalanced-learn>=0.12
+
+# --- deep learning ---
+torch>=2.2
+
+# --- visualization ---
+matplotlib>=3.8
+seaborn>=0.13
+
+# --- utils ---
+tqdm>=4.66
+
+# --- jupyter runtime ---
+jupyter>=1.0
+notebook>=7.0
+ipykernel>=6.29

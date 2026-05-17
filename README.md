@@ -1,145 +1,45 @@
-**Dataset Flow**
+# BeatSense
 
-```mermaid
-flowchart LR
-    subgraph Data_Ingestion["📥 Data Ingestion"]
-        A["Raw CSV\nmitbih_train/test.csv"] --> B["Pandas DataFrame"]
-        B --> C["Schema Validation\n186 features + label"]
-    end
+MVP веб-приложение для автоматической классификации ЭКГ-сигналов с использованием ML.
 
-    subgraph Preprocessing["⚙️ Preprocessing"]
-        C --> D["Noise Filtering"]
-        D --> E["Normalization\nZero-mean, Unit-var"]
-        E --> F["Class Balancing\nSMOTE/Undersampling"]
-        F --> G["Train/Val/Test Split"]
-    end
-
-    subgraph Annotation["🏷️ Annotation Loop"]
-        G --> H["Export to Label Studio"]
-        H --> I["Expert Review\nCardiologist QA"]
-        I --> J["Pre-labeling with\nBaseline CNN"]
-        J --> K["Import Annotated\nData → Parquet"]
-        K --> G
-    end
-
-    subgraph Versioning["🗂️ Version Control"]
-        L["Git: Code & Configs"] 
-        M["DVC: Data & Models"]
-        N["MLflow: Experiments"]
-    end
-
-    subgraph Training["🤖 Model Training"]
-        O["Conv1D / ResNet\nInput: (N, 186, 1)"]
-        P["Metrics: F1, ROC-AUC,\nConfusion Matrix"]
-        Q["Model Registry\nBest weights .h5"]
-    end
-
-    G --> L & M
-    K --> O
-    O --> P --> Q
-    P -.->|Feedback| I
-
-    style Data_Ingestion fill:#e3f2fd,stroke:#1976d2
-    style Preprocessing fill:#e8f5e9,stroke:#388e3c
-    style Annotation fill:#fff3e0,stroke:#f57c00
-    style Versioning fill:#f3e5f5,stroke:#7b1fa2
-    style Training fill:#ffebee,stroke:#c62828
-```
-
-# 🫀 BeatSense — AI сервис анализа кардиограммы (ECG)
-
-**BeatSense** — это MVP веб-приложения для автоматического анализа электрокардиограмм с использованием методов машинного обучения.
-Сервис классифицирует сердечные ритмы и помогает в предварительной диагностике.
-
-> ⚠️ Важно: проект не является медицинским устройством и не заменяет врача.
+> **Дисклеймер:** Проект учебный. Не является медицинским устройством, не предназначен для постановки диагноза.
 
 ---
 
-## 🚀 Возможности
+## Описание
 
-* 📥 Загрузка ECG сигнала
-* 🧠 Автоматическая классификация сердечного ритма
-* 📊 Вывод результата с confidence score
-* 📈 Визуализация кардиограммы
-* ⚡ Быстрый анализ (несколько секунд)
-* 🔌 API для интеграции (`/predict`)
+BeatSense принимает сегмент ЭКГ (~187 точек) и возвращает класс сердечного ритма с оценкой уверенности. Цель — ускорить предварительный анализ кардиограмм для врачей и исследователей.
+
+**Классы:**
+
+| Код | Название |
+|-----|----------|
+| 0 | Normal beat |
+| 1 | Supraventricular ectopic beat |
+| 2 | Ventricular ectopic beat |
+| 3 | Fusion beat |
+| 4 | Unknown beat |
 
 ---
 
-## 🏗 Архитектура
-
-Приложение состоит из трёх основных компонентов:
-
-* **Frontend** — пользовательский интерфейс
-* **Backend** — API и бизнес-логика
-* **AI сервис** — модель машинного обучения
+## Архитектура
 
 ```
-Frontend → Backend → AI Model → Backend → Frontend
+Frontend (React) → POST /predict → Backend (FastAPI) → ML Model (PyTorch/TF)
 ```
 
----
-
-## 🧠 AI модель
-
-* Датасет: ECG Heartbeat Categorization Dataset
-* Формат входа: ~187 точек сигнала
-* Выход: класс ритма + вероятность
-
-### Метрики (целевые):
-
-* Accuracy ≥ 85%
-* F1-score ≥ 0.80
+| Компонент | Директория | Статус |
+|-----------|-----------|--------|
+| Frontend | `frontend/` | в разработке (прототип: `BeatSense.html`) |
+| Backend | `backend/` | в разработке |
+| ML модель | `ml/` | в разработке |
+| Notebooks | `notebooks/` | в разработке |
 
 ---
 
-## ⚙️ Технологический стек
+## Запуск
 
-**Frontend:**
-
-* React
-
-**Backend:**
-
-* Python (FastAPI)
-
-**AI:**
-
-* PyTorch / TensorFlow
-
-**Инфраструктура:**
-
-* Локальный запуск или облако
-* Без сложной оркестрации
-
----
-
-## 📊 Основной функционал
-
-Пользователь может:
-
-1. Загрузить ECG сигнал
-2. Нажать кнопку **Analyze**
-3. Получить:
-
-   * тип ритма
-   * вероятность (confidence score)
-   * график сигнала
-
----
-
-## 📦 Установка и запуск
-
-### 1. Клонировать репозиторий
-
-```bash
-git clone https://github.com/oRUTYo/health-checker.git
-cd health-checker
-```
-
----
-
-### 2. Backend
+### Backend
 
 ```bash
 cd backend
@@ -147,9 +47,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
----
-
-### 3. Frontend
+### Frontend
 
 ```bash
 cd frontend
@@ -157,11 +55,7 @@ npm install
 npm run dev
 ```
 
----
-
-### 4. AI модель
-
-(пример)
+### ML обучение
 
 ```bash
 cd ml
@@ -170,93 +64,49 @@ python train.py
 
 ---
 
-## 🔌 API
+## API
 
-### POST /predict
-
-**Описание:**
-Классификация ECG сигнала
-
-**Вход:**
+**`POST /predict`**
 
 ```json
-{
-  "signal": [0.1, 0.2, 0.3, ...]
-}
+// Запрос
+{ "signal": [0.1, 0.2, ...] }
+
+// Ответ
+{ "class": "Normal", "confidence": 0.92 }
 ```
 
-**Выход:**
+- Confidence < 0.6 → fallback `"не уверен"`
+- Время ответа (без ML) < 1 сек, E2E ≤ 5 сек
 
-```json
-{
-  "class": "Normal",
-  "confidence": 0.92
-}
+---
+
+## ML модель
+
+- **Датасет:** [ECG Heartbeat Categorization Dataset](https://www.kaggle.com/datasets/shayanfazeli/heartbeat/data) (MIT-BIH), ~187 точек на сигнал
+- **Задача:** мультиклассовая классификация (5 классов)
+- **Целевые метрики:** Accuracy ≥ 85%, F1-score ≥ 0.80
+- **Предобработка:** MinMax / StandardScaler; при дисбалансе — SMOTE или class weights
+- **Формат модели:** `.pkl` или `.pt`
+
+---
+
+## Структура данных
+
+```
+data/
+├── raw/          # исходные CSV (mitbih_train.csv, mitbih_test.csv)
+├── processed/    # после фильтрации и нормализации
+├── train/        # обучающая выборка
+└── test/         # тестовая выборка
 ```
 
----
-
-## 📏 Критерии успеха
-
-* Accuracy ≥ 85%
-* F1-score ≥ 0.80
-* Время анализа ≤ 5 секунд
-* API response < 1 сек
-* Рабочий end-to-end сценарий
+Версионирование: `ecg-heartbeat-v{N}-{stage}` (например `ecg-heartbeat-v2-clean`).
 
 ---
 
-## ⚠️ Ограничения
+## Спецификации
 
-* Не медицинская система
-* Нет real-time обработки
-* Нет интеграции с hospital systems
-* Используется один датасет
-
----
-
-## 🚧 Риски
-
-* Переобучение модели
-* Дисбаланс классов
-* Низкая точность на реальных данных
-* Ошибки интеграции компонентов
-
----
-
-## 👥 Команда
-
-* **Садиков Руслан** — Team Lead / System Architect
-* **Зиганшин Ильяс** — Product Owner / Frontend Lead
-* **Минникаев Мансур** — Backend Engineer
-* **Шамсутдинов Рафаэль** — Machine Learning Engineer
-* **Юссеф Алин** — Data & QA Engineer
-* **Шайхетдинов Ильвир** — Frontend Engineer
-* **Цзяо Цзэфэн** — Frontend Engineer / Data Visualization
-
----
-
-## ✅ Definition of Done
-
-MVP считается завершённым, если пользователь может:
-
-* открыть приложение
-* загрузить ECG
-* нажать "Analyze"
-* получить корректный результат за несколько секунд
-
----
-
-## 📌 Планы на будущее
-
-* Улучшение модели
-* Поддержка реальных ECG данных
-* Explainability (SHAP, LIME)
-* Интеграции с медицинскими системами
-
----
-
-## 📄 Лицензия
-
-Проект разработан в учебных целях.
-
+- [`specs/PRD.md`](specs/PRD.md) — требования к продукту, KPI, ограничения MVP
+- [`specs/DoD.md`](specs/DoD.md) — Definition of Done для AI, Backend, Frontend и E2E
+- [`specs/Data_Spec.md`](specs/Data_Spec.md) — схема данных, версионирование датасета
