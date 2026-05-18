@@ -244,7 +244,7 @@ textarea::placeholder { color: var(--text-3); }
 .dropzone-formats { font-size: 11px; color: var(--text-3); margin-top: 6px; }
 
 /* ─── Demo Grid ─── */
-.demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.demo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
 .demo-card {
   border: 1.5px solid var(--border);

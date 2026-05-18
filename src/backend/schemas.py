@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class PredictRequest(BaseModel):
-    signal: list[float]
+    signal: list[float] = Field(..., min_length=2)
 
 
 class PredictResponse(BaseModel):
