@@ -6,6 +6,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+TARGET_LEN = 187
+
 
 class ECGNet(nn.Module):
     def __init__(self, num_classes: int = 5):
@@ -50,8 +52,17 @@ def load_artifacts(artifacts_dir: Path) -> tuple:
     return model, scaler, meta
 
 
+def _resample(signal: np.ndarray, target_len: int = TARGET_LEN) -> np.ndarray:
+    if signal.size == target_len:
+        return signal
+    x_old = np.linspace(0.0, 1.0, num=signal.size, dtype=np.float32)
+    x_new = np.linspace(0.0, 1.0, num=target_len, dtype=np.float32)
+    return np.interp(x_new, x_old, signal).astype(np.float32)
+
+
 def run_inference(signal: list[float], model: ECGNet, scaler, meta: dict) -> dict:
-    arr = np.array(signal, dtype=np.float32).reshape(1, -1)
+    arr = np.asarray(signal, dtype=np.float32)
+    arr = _resample(arr).reshape(1, -1)
     arr = scaler.transform(arr)
     x = torch.tensor(arr, dtype=torch.float32).unsqueeze(1)
 
